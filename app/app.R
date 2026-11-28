@@ -5,6 +5,7 @@ library(shinydashboard)
 library(ggplot2)
 library(dplyr)
 library(readr)
+library(plotly)
 
 dig.df <- read_csv("../data/dig_cleaned.csv")
 glimpse(dig.df)
@@ -55,7 +56,8 @@ ui <- dashboardPage(
                     title = "Distribution of Treatment Groups",
                     status = "info",
                     width = 6,
-                    solidHeader = TRUE
+                    solidHeader = TRUE,
+                    plotlyOutput("treatment_groups", height = "300px")
                 ))),
       tabItem(tabName = "table",
               h2("DIG data table and Codebook")),
@@ -71,7 +73,22 @@ ui <- dashboardPage(
   )
 ) 
 
-server <- function(input, output) { }
+server <- function(input, output) { 
+  output$treatment_groups <- renderPlotly({
+    ggplot(data = dig.df, 
+           mapping = aes(x = TRTMT, y = 100*(after_stat(count))/sum(after_stat(count)), fill = TRTMT,
+                         label1 = TRTMT,
+                         label2 = after_stat(count),
+                         )) + 
+      geom_bar(alpha = 0.5) +
+      scale_fill_manual(values = c("Placebo" = "purple", "Treatment" = "darkgreen")) +
+      labs(title = "Percentage of Patients in each Treatment Group", 
+           fill = "Treatment", 
+           caption = "Source: DIG (Digitalis Investigation Group) Trial",
+           x = "Treatment Group",
+           y= "Percentage (%)")
+    ggplotly(tooltip = c("label1", "label2", "y"))
+  })}
 
 shinyApp(ui, server)
 
