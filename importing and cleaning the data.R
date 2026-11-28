@@ -2,7 +2,7 @@ library(dplyr)
 library(tidyr)
 library(readr)
 
-dig.df <- read.csv("DIG-1.csv")
+dig.df <- read.csv("data/DIG-1.csv")
 
 glimpse(dig.df)
 
@@ -33,4 +33,7 @@ dig.df <- dig.df %>%
   )
 
 glimpse(dig.df)
-linr
+
+
+write_csv(dig.df, "data/dig_cleaned.csv")
+
