@@ -6,6 +6,7 @@ library(ggplot2)
 library(dplyr)
 library(readr)
 library(plotly)
+library(DT)
 
 dig.df <- read_csv("../data/dig_cleaned.csv")
 glimpse(dig.df)
@@ -50,7 +51,8 @@ ui <- dashboardPage(
                     solidHeader = TRUE,
                     p("This interactive application is for the exploration of the DIG trial dataset"),
                     p("It investigates the baseline characteristics, clinical outcomes, survival analysis and relationships between variables"),
-                    p("The contents of the different sections can be viewed and analysed by selecting the items on the sidebar")
+                    p("The contents of the different sections can be viewed and analysed by selecting the items on the sidebar"),
+                    p("The variables used were ID, TRTMT, AGE, SEX, BMI, KLEVEL, CREAT, DIABP, SYSBP, HYPERTEN, CVD, WHF, DIG, HOSP, HOSPDAYS, DEATH and DEATHDAY. These can be viewed in the DIG data table section")
                 ),
                 box(
                     title = "Distribution of Treatment Groups",
@@ -60,7 +62,9 @@ ui <- dashboardPage(
                     plotlyOutput("treatment_groups", height = "300px")
                 ))),
       tabItem(tabName = "table",
-              h2("DIG data table and Codebook")),
+              h2("DIG data table"),
+              dataTableOutput("dig_table"),
+              h2("DIG Codebook")),
       tabItem(tabName = "baseline",
               h2("Baseline Characteristics")),
       tabItem(tabName = "outcome",
@@ -88,6 +92,9 @@ server <- function(input, output) {
            x = "Treatment Group",
            y= "Percentage (%)")
     ggplotly(tooltip = c("label1", "label2", "y"))
+  })
+  output$dig_table <- renderDataTable({
+    datatable(dig.df)
   })}
 
 shinyApp(ui, server)
